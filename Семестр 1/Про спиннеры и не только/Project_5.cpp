@@ -29,6 +29,6 @@ Again:
 		n = *max_element(seats.begin(), seats.end());
 		k--;
 	}
-	cout << seats.front() << " " << seats.back();
+	cout << "Output: " << seats.front() << " " << seats.back();
 	return 0;
 }
