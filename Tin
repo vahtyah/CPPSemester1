@@ -1,0 +1,127 @@
+#include <iostream>
+#include <conio.h>
+#include <string>
+#include <sstream>
+using namespace std;
+
+string convertTo10(string str, int base) {
+	string ct;
+	int result = 0;
+	for (int i = str.length() - 1; i >= 0; i--) {
+		if (str[i] >= 48 && str[i] <= 57) {
+			result += (str[i] - 48) * pow(base, str.length() - i - 1);
+		}
+		if (str[i] >= 65 && str[i] <= 90) {
+			result += (str[i] - 55) * pow(base, str.length() - i - 1);
+		}
+	}
+	ostringstream convert;
+	convert << result;
+	ct = convert.str();
+	return ct;
+}
+
+string convertFrom10(string str, int base) {
+	string cf;
+	char result[20];
+	int num = 0, r = 0;
+	for (int i = str.length() - 1; i >= 0; i--) {
+		num += (str[i] - 48) * pow(10, str.length() - i - 1);
+	}
+	while (num > 0) {
+		if (base > 10) {
+			int n = num % base;
+			if (n >= 10) {
+				result[r] = n + 55;
+				r++;
+			}
+			else {
+				result[r] = n + 48;
+				r++;
+			}
+		}
+		else {
+			result[r] = num % base + 48;
+			r++;
+		}
+		num = num / base;
+	}
+	for (int i = r - 1; i >= 0; i--) {
+		cf += result[i];
+	}
+	return cf;
+}
+
+double covertFractionalPart(string str)
+{
+	double result = 0;
+	for (int i = 0; i < str.length(); i++)
+		result += (str[i] - 48) * pow(2, -i - 1);
+	return result;
+}
+
+int main()
+{
+	//Hangxinhgaisieucapvutru
+	double n;
+	cout << "Enter n (1-5): ";
+input:
+	cin >> n;
+	if (n < 1 || n>5 || n != rintf(n))
+	{
+		cout << "Input is falsed!" << endl;
+		cout << "Enter again: ";
+		goto input;
+	}
+	int exp;
+	string str;
+	string* input = new string[n];
+	double* output = new double[n];
+	cout << "Enter " << n << " half - precision numbers in hexadecimal notation : " << endl;
+	for (int i = 0; i < n; i++)
+	{
+		string num = "1";
+		cin >> input[i];
+		for (int j = 0; j < input[i].length(); j++)
+		{
+			if (input[i].length() != 4 || input[i][j] > 'F' || input[i][j] < '0'|| input[i][j] >'9'||input[i][j]<'A')
+		}
+			str = convertFrom10(convertTo10(input[i], 16), 2);
+		if (str.length() == 15) str.insert(str.begin(), '0');
+		exp = stoi(convertTo10(str.substr(1, 5), 2)) - 15;
+
+		if (exp < 0)
+		{
+			num += str.substr(6);
+			for (int i = 0; i < -exp - 1; i++)
+			{
+				num.insert(num.begin(), '0');
+			}
+			output[i] = covertFractionalPart(num);
+		}
+		else
+		{
+			num += str.substr(6, exp);
+			output[i] = stoi(convertTo10(num, 2)) + covertFractionalPart(str.substr(exp + 6));
+		}
+		if (str[0] == '1') output[i] = -output[i];
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = i; j < n; j++)
+		{
+			if (output[i] > output[j])
+				swap(output[i], output[j]);
+		}
+	}
+	cout << "Result:" << endl;
+	for (int i = 0; i < n; i++)
+	{
+		cout << output[i] << endl;
+	}
+
+	delete[]input;
+	delete[]output;
+	return 0;
+}
