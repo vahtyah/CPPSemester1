@@ -1,0 +1,168 @@
+#include <iostream>
+#include <conio.h>
+#include <string>
+#include <sstream>
+#include <locale>
+using namespace std;
+
+// Функция swap() для замены 2 элементов через временной переменной
+void swap(double& a, double& b)
+{
+	double temp = a; // Объявление переменной temp типа данных с плавающей точкой для сохранения значения элементы
+	a = b;
+	b = temp;
+}
+
+// Функция convertTo10() для перевода чилса из любой системы счисления в десятичную
+string convertTo10(string str, int base) {
+	string ct; // Объявление строки ct для сохранения результатов
+	int result = 0; // Объявление целочисленной переменной result для сохранения результатов
+	// Перевод чилса из любой системы счисления в десятичную
+	for (int i = str.length() - 1; i >= 0; i--) {
+		if (str[i] >= 48 && str[i] <= 57) {
+			result += (str[i] - 48) * pow(base, str.length() - i - 1);
+		}
+		if (str[i] >= 65 && str[i] <= 90) {
+			result += (str[i] - 55) * pow(base, str.length() - i - 1);
+		}
+	}
+	ostringstream convert;
+	convert << result;
+	ct = convert.str();
+	return ct; // Возврат сt
+}
+
+// Функция convertFrom10To2() для перевода целой части числа из десятичной системы счисления в двоичную
+string convertFrom10To2(string str) {
+	string cf; // Объявление строки cf для сохранения результатов
+	char result[20]; // Объявление переменной символьного типа result размера 20 для сохранения результатов
+	int num = 0, r = 0; // Объявление целочисленной переменной num и r для сохранения результатов
+	// Перевод целой части числа из десятичной системы счисления в двоичную
+	for (int i = str.length() - 1; i >= 0; i--) {
+		num += (str[i] - 48) * pow(10, str.length() - i - 1);
+	}
+	while (num > 0) {
+		result[r] = num % 2 + 48;
+		r++;
+		num = num / 2;
+	}
+	for (int i = r - 1; i >= 0; i--) {
+		cf += result[i];
+	}
+	return cf; // Возврат сf
+}
+
+// Функция covertFractionalPart() для перевода дробной числа из десятичной системы счисления в двоичную
+double covertFractionalPart(string str)
+{
+	double result = 0; // Объявление переменной result типа данных с плавающей точкой для сохранения результатов
+	for (int i = 0; i < str.length(); i++) // Перевод дробной числа из десятичной системы счисления в двоичную
+		result += (str[i] - 48) * pow(2, -i - 1);
+	return result; // Возврат result
+}
+
+// Вызов функции input_N() для ввода n
+void input_N(int& n)
+{
+	string str; // Объявление строки str для сохранения введенных данных
+	cout << "Введите размер N массива, выбранный из диапазона [1-5]: ";
+input:
+	cin >> str; // Запись введенных элементов в строку str
+	n = (str[0] - 48); 
+	if (n < 1 || n > 5 || str.length() != 1) // Повторный ввод, когда n не целое число в диапазоне [1,5]
+	{
+		cout << "Будьте внимательны! N должно быть целым в диапазоне [1,5]!" << endl;
+		cout << "Введите ещё раз: ";
+		goto input;
+	}
+}
+ 
+// Функция calculation() для перевода введенного числа в десятичную систему счмсления
+void calculation(string input[], double output[], int i)
+{
+	int exp; // Объявление целочисленной переменной exp, которая экспонента числа
+	string str; // Объявление строки str для сохранения введенного числа в двоичной системе счисления
+	string num = "1"; // Объявление строки num, которая мантисса числа
+	// Перевод введенного числа в десятичную систему счисления из формата половинной точности в шестнадцатеричной записи 
+	str = convertFrom10To2(convertTo10(input[i], 16)); 
+	if (str.length() == 15) str.insert(str.begin(), '0'); 
+	exp = stoi(convertTo10(str.substr(1, 5), 2)) - 15;
+	if (exp < 0)
+	{
+		num += str.substr(6);
+		for (int i = 0; i < -exp - 1; i++)
+		{
+			num.insert(num.begin(), '0');
+		}
+		output[i] = covertFractionalPart(num);
+	}
+	else
+	{
+		num += str.substr(6, exp);
+		output[i] = stoi(convertTo10(num, 2)) + covertFractionalPart(str.substr(exp + 6));
+	}
+	if (str[0] == '1') output[i] = -output[i];
+}
+
+// Вызов функции progress() для решения задачи
+void progress(string input[], double output[],int n)
+{
+	cout << "Введите " << n << " числа в формате половинной точности в шестнадцатеричной записи: " << endl;
+	for (int i = 0; i < n; i++)
+	{
+	input:
+		cin >> input[i]; // Запись введенного чмсла в строку input в i-го позицию
+		for (int j = 0; j < input[i].length(); j++)
+		{
+			if (input[i].length() != 4 || input[i][j] < '0' || (input[i][j] > '9' && input[i][j] < 'A') || input[i][j] > 'F') // // Повторный ввод, когда введенный элемент не в формате половинной точности в шестнадцатеричной записи
+			{
+				cout << "Будьте внимательны! Элементы массива должны в формате половинной точности в шестнадцатеричной записи!" << endl;
+				cout << "Введите еUщё раз: ";
+				goto input;
+			}
+		}
+		calculation(input, output, i); // Вызов функции calculation() для перевода введенного числа в десятичную систему счмсления
+	}
+}
+
+// Функция sort() для сортировки массива по убыванию
+void sort(int n, double output[])
+{
+	for (int i = 0; i < n; i++)
+		for (int j = i; j < n; j++)
+			if (output[i] > output[j])
+				swap(output[i], output[j]); // Вызов функции swap() для замены 2 элементов
+}
+
+// Функция output() для вывода результатов
+void result(int n, double output[])
+{
+	cout << "Result:" << endl;
+	for (int i = 0; i < n; i++)
+	{
+		cout << output[i] << endl; // Вывод элемент в i-ой позиции на экран
+	}
+}
+
+// Главная функция main()
+int main()
+{
+	//Hangxinhgaisieucapvutru
+	setlocale(LC_ALL, "Rus"); // Установка языковой стандарт
+	int n; // Объявление целочисленной переменной n, которая будет размер массива
+	 
+	input_N(n); // Вызов функции input_N() для ввода n
+
+	string* input = new string[n]; // Объявление динамического массива строк input размера n для сохранения введенных элементов
+	double* output = new double[n]; // Объявление динамического массива output размера n для сохранения результатов вычислений
+
+	progress(input, output, n); // Вызов функции progress() для решения задачи
+
+	sort(n, output); // Функция sort() для сортировки массива по убыванию
+
+	result(n, output); // Функция output() для вывода результатов
+
+	delete[]input; // Очистим динамический массив input[]
+	delete[]output; // Очистим динамический массив output[]
+	return 0; // Возврат 0
+}
